@@ -178,7 +178,7 @@ void sdl_window_vulkan::create_swapchain()
                                           .pNext = nullptr,
                                           .flags = 0,
                                           .surface = this->surface,
-                                          .minImageCount = 2,
+                                          .minImageCount = max(2u, capabilities.minImageCount),
                                           .imageFormat = format.format,
                                           .imageColorSpace = format.colorSpace,
                                           .imageExtent = capabilities.currentExtent,
@@ -297,6 +297,7 @@ sdl_window_vulkan::sdl_window_vulkan(const char* name, Eigen::Vector<Tuint, 2> s
     setfunc(vkWaitForFences);
     setfunc(vkResetFences);
     setfunc(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+    setfunc(vkGetPhysicalDeviceImageFormatProperties);
 
 #undef setfunc
 
@@ -338,13 +339,46 @@ sdl_window_vulkan::sdl_window_vulkan(const char* name, Eigen::Vector<Tuint, 2> s
             vkGetPhysicalDeviceSurfaceFormatsKHR(get_vulkan_physical_device(device), surface, &count, formats.data()));
 
         cout << "number of formats: " << count << endl;
+
+        int format_use = -1;
         for (unsigned int k = 0; k < count; ++k)
         {
             cout << k << ": format=" << formats[k].format << ", colorSpace=" << formats[k].colorSpace << endl;
+
+            {
+                auto& format = formats[k];
+                VkImageFormatProperties imageFormatProperties;
+                VkResult result = vkGetPhysicalDeviceImageFormatProperties(get_vulkan_physical_device(device),
+                                                                           format.format,
+                                                                           VK_IMAGE_TYPE_2D,
+                                                                           VK_IMAGE_TILING_OPTIMAL,
+                                                                           VK_IMAGE_USAGE_STORAGE_BIT,
+                                                                           0,
+                                                                           &imageFormatProperties);
+
+                if (result == VK_ERROR_FORMAT_NOT_SUPPORTED)
+                {
+                    cout << "Format not supported." << endl;
+                    continue;
+                }
+                cout << "maxExtent: " << imageFormatProperties.maxExtent.width << ","
+                     << imageFormatProperties.maxExtent.height << endl;
+
+                format_use = k;
+                break;
+            }
+        }
+
+        if (format_use == -1)
+        {
+            throw std::runtime_error("Cannot find usable format.");
+        }
+        else
+        {
+            this->format = formats[format_use];
         }
     }
 
-    this->format = formats[0];
     cout << "using format=" << format.format << ", colorSpace=" << format.colorSpace << endl;
 
     {

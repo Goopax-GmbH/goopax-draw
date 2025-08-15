@@ -27,6 +27,7 @@ class sdl_window_vulkan : public sdl_window
     PFN_vkWaitForFences vkWaitForFences;
     PFN_vkResetFences vkResetFences;
     PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
+    PFN_vkGetPhysicalDeviceImageFormatProperties vkGetPhysicalDeviceImageFormatProperties;
 
     VkInstance instance = nullptr;
     VkSurfaceKHR surface = nullptr;
