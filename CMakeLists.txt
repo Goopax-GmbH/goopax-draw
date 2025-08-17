@@ -11,7 +11,7 @@ if (GOOPAX_DEBUG)
 else()
   target_compile_definitions(goopax_typedefs INTERFACE -DGOOPAX_DEBUG=0)
 endif()
-target_include_directories(goopax_typedefs SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/..")
+target_include_directories(goopax_typedefs SYSTEM INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 
 
@@ -48,15 +48,15 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
   message("Metal: ${GOOPAX_DRAW_WITH_METAL}")
 
 
-  set (FILES window_sdl.cpp window_sdl.h window_plain.h window_plain.cpp)
+  set (FILES src/window_sdl.cpp src/window_plain.cpp)
   if (GOOPAX_DRAW_WITH_METAL)
-    set (FILES ${FILES} window_metal.h window_metal.mm)
+    set (FILES ${FILES} src/window_metal.mm)
   endif()
   if (GOOPAX_DRAW_WITH_OPENGL)
-    set(FILES ${FILES} window_gl.h window_gl.cpp)
+    set(FILES ${FILES} src/window_gl.cpp)
   endif()
   if (GOOPAX_DRAW_WITH_VULKAN)
-    set(FILES ${FILES} window_vulkan.h window_vulkan.cpp)
+    set(FILES ${FILES} src/window_vulkan.cpp)
   endif()
 
   add_library(goopax_draw ${FILES})

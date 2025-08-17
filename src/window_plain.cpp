@@ -1,4 +1,4 @@
-#include "window_plain.h"
+#include <goopax_draw/window_plain.h>
 using namespace goopax;
 using namespace std;
 

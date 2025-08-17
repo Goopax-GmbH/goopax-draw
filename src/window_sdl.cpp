@@ -1,7 +1,7 @@
-#include "window_sdl.h"
-#include "window_gl.h"
-#include "window_plain.h"
-#include "window_vulkan.h"
+#include <goopax_draw/window_gl.h>
+#include <goopax_draw/window_plain.h>
+#include <goopax_draw/window_sdl.h>
+#include <goopax_draw/window_vulkan.h>
 
 #include <goopax>
 

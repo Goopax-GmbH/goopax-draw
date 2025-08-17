@@ -1,5 +1,5 @@
-#include "window_vulkan.h"
 #include <SDL3/SDL_vulkan.h>
+#include <goopax_draw/window_vulkan.h>
 #if __has_include(<vulkan/vk_enum_string_helper.h>)
 #include <vulkan/vk_enum_string_helper.h>
 #endif
