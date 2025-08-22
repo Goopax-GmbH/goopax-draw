@@ -1,4 +1,4 @@
-#include "window_metal.h"
+#include <goopax_draw/window_metal.h>
 using namespace std;
 
 std::unique_ptr<sdl_window>
