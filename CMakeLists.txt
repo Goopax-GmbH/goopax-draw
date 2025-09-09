@@ -15,7 +15,7 @@ target_include_directories(goopax_typedefs SYSTEM INTERFACE "${CMAKE_CURRENT_SOU
 
 
 
-if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
+if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen AND NOT "${CMAKE_CXX_STANDARD}" STREQUAL "17")
 
   find_path(Vulkan_INCLUDE_DIRS "vulkan/vulkan.h" HINTS "${CMAKE_BINARY_DIR}/ext/build_sdl3-prefix/src/build_sdl3/src/video/khronos")
 
