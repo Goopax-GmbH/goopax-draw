@@ -5,29 +5,83 @@
 #include "window_sdl.h"
 #include <vulkan/vulkan.h>
 
+void call_vulkan(VkResult result);
+
 class sdl_window_vulkan : public sdl_window
 {
-    PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
-    PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
-    PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
-    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
-    PFN_vkCreateFence vkCreateFence;
-    PFN_vkDestroyFence vkDestroyFence;
-    PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
-    PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
-    PFN_vkCreateCommandPool vkCreateCommandPool;
-    PFN_vkDestroyCommandPool vkDestroyCommandPool;
-    PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
-    PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
-    PFN_vkQueuePresentKHR vkQueuePresentKHR;
-    PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier;
-    PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
-    PFN_vkEndCommandBuffer vkEndCommandBuffer;
-    PFN_vkQueueSubmit vkQueueSubmit;
-    PFN_vkWaitForFences vkWaitForFences;
-    PFN_vkResetFences vkResetFences;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
-    PFN_vkGetPhysicalDeviceImageFormatProperties vkGetPhysicalDeviceImageFormatProperties;
+public:
+#define setfunc(FUNC) PFN_##FUNC FUNC
+
+    setfunc(vkGetPhysicalDeviceSurfaceSupportKHR);
+    setfunc(vkCreateSwapchainKHR);
+    setfunc(vkGetSwapchainImagesKHR);
+    setfunc(vkGetPhysicalDeviceSurfaceFormatsKHR);
+    setfunc(vkCreateFence);
+    setfunc(vkDestroyFence);
+    setfunc(vkAllocateCommandBuffers);
+    setfunc(vkFreeCommandBuffers);
+    setfunc(vkCreateCommandPool);
+    setfunc(vkDestroyCommandPool);
+    setfunc(vkDestroySwapchainKHR);
+    setfunc(vkAcquireNextImageKHR);
+    setfunc(vkQueuePresentKHR);
+    setfunc(vkCmdPipelineBarrier);
+    setfunc(vkBeginCommandBuffer);
+    setfunc(vkEndCommandBuffer);
+    setfunc(vkQueueSubmit);
+    setfunc(vkWaitForFences);
+    setfunc(vkResetFences);
+    setfunc(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
+    setfunc(vkGetPhysicalDeviceImageFormatProperties);
+    setfunc(vkCreateShaderModule);
+    setfunc(vkDestroySemaphore);
+    setfunc(vkCreateImageView);
+    setfunc(vkDestroyPipeline);
+    setfunc(vkDestroyPipelineLayout);
+    setfunc(vkDestroyRenderPass);
+    setfunc(vkDestroyImageView);
+    setfunc(vkFreeMemory);
+    setfunc(vkDestroyImage);
+    setfunc(vkDestroyFramebuffer);
+    setfunc(vkCreateImage);
+    setfunc(vkGetPhysicalDeviceMemoryProperties);
+    setfunc(vkGetPhysicalDeviceFormatProperties);
+    setfunc(vkCreateRenderPass);
+    setfunc(vkCreatePipelineLayout);
+    setfunc(vkCreateFramebuffer);
+    setfunc(vkCreateSemaphore);
+    setfunc(vkGetImageMemoryRequirements);
+    setfunc(vkCreateGraphicsPipelines);
+    setfunc(vkAllocateMemory);
+    setfunc(vkDestroyShaderModule);
+    setfunc(vkBindImageMemory);
+    setfunc(vkResetCommandBuffer);
+    setfunc(vkCmdBeginRenderPass);
+    setfunc(vkCmdBindPipeline);
+    setfunc(vkCmdSetViewport);
+    setfunc(vkCmdSetScissor);
+    setfunc(vkCmdBindVertexBuffers);
+    setfunc(vkCmdPushConstants);
+    setfunc(vkCmdDraw);
+    setfunc(vkCmdEndRenderPass);
+    setfunc(vkGetDeviceQueue);
+    setfunc(vkDeviceWaitIdle);
+    setfunc(vkCmdBindIndexBuffer);
+    setfunc(vkCmdDrawIndexed);
+    setfunc(vkCreateSampler);
+    setfunc(vkCmdBindDescriptorSets);
+    setfunc(vkCreateDescriptorPool);
+    setfunc(vkCreateDescriptorSetLayout);
+    setfunc(vkAllocateDescriptorSets);
+    setfunc(vkUpdateDescriptorSets);
+    setfunc(vkGetBufferDeviceAddress);
+#ifdef _WIN32
+    setfunc(vkGetMemoryWin32HandleKHR);
+#else
+    setfunc(vkGetMemoryFdKHR);
+#endif
+
+#undef setfunc
 
     VkInstance instance = nullptr;
     VkSurfaceKHR surface = nullptr;
@@ -41,6 +95,8 @@ class sdl_window_vulkan : public sdl_window
     static constexpr uint64_t timeout = 60000000000ul;
 
     VkSurfaceFormatKHR format;
+    VkSurfaceCapabilitiesKHR surfaceCapabilities;
+
     std::vector<goopax::image_buffer<2, Eigen::Vector<uint8_t, 4>, true>> images;
 
     void draw_goopax(

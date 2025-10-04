@@ -4,6 +4,7 @@ option(GOOPAX_DEBUG "GOOPAX_DEBUG" OFF)
 find_package(SDL3 PATHS "${CMAKE_BINARY_DIR}/ext/sdl3")
 find_package(Eigen3 3.3 NO_MODULE PATHS "${CMAKE_BINARY_DIR}/ext/eigen")
 find_package(OpenGL)
+find_package(glm)
 
 add_library(goopax_typedefs INTERFACE)
 if (GOOPAX_DEBUG)
@@ -15,7 +16,7 @@ target_include_directories(goopax_typedefs SYSTEM INTERFACE "${CMAKE_CURRENT_SOU
 
 
 
-if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
+if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen AND TARGET Boost::iostreams)
 
   find_path(Vulkan_INCLUDE_DIRS "vulkan/vulkan.h" HINTS "${CMAKE_BINARY_DIR}/ext/build_sdl3-prefix/src/build_sdl3/src/video/khronos")
 
@@ -34,8 +35,12 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
   endif()
 
   if (NOT Vulkan_INCLUDE_DIRS)
-    set(GOOPAX_DRAW_WITH_VULKAN 0)
+    set(GOOPAX_DRAW_WITH_VULKAN OFF)
   endif()
+  if (NOT TARGET glm::glm)
+    set(GOOPAX_DRAW_WITH_VULKAN OFF)
+  endif()
+
 
   if  (GOOPAX_DEBUG)
     set(GOOPAX_DRAW_WITH_METAL 0)
@@ -56,7 +61,7 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
     set(FILES ${FILES} src/window_gl.cpp)
   endif()
   if (GOOPAX_DRAW_WITH_VULKAN)
-    set(FILES ${FILES} src/window_vulkan.cpp)
+    set(FILES ${FILES} src/window_vulkan.cpp src/particle/renderer_vulkan.cpp src/vulkan/semaphore.cpp)
   endif()
 
   add_library(goopax_draw ${FILES})
@@ -73,6 +78,7 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
   if (GOOPAX_DRAW_WITH_VULKAN)
     target_compile_definitions(goopax_draw PUBLIC -DWITH_VULKAN=1)
     target_include_directories(goopax_draw SYSTEM PUBLIC ${Vulkan_INCLUDE_DIRS})
+    target_link_libraries(goopax_draw PRIVATE glm::glm)
   else()
     target_compile_definitions(goopax_draw PUBLIC -DWITH_VULKAN=0)
   endif()
@@ -92,6 +98,6 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
       target_link_libraries(goopax_draw PUBLIC OpenGL::GLU)
     endif()
   endif()
-  target_link_libraries(goopax_draw PUBLIC goopax::goopax Eigen3::Eigen goopax_typedefs)
+  target_link_libraries(goopax_draw PUBLIC goopax::goopax Eigen3::Eigen goopax_typedefs Boost::iostreams)
 
 endif()

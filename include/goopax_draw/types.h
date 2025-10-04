@@ -60,4 +60,5 @@ using Thalf = Tdebugtype<Eigen::half>;
 using Tbfloat16 = Tdebugtype<std::bfloat16_t>;
 #elif __has_include(<Eigen/Eigen>)
 using Tbfloat16 = Tdebugtype<Eigen::bfloat16>;
+using gpu_bfloat16 = typename goopax::make_gpu<Tbfloat16>::type;
 #endif
