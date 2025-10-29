@@ -195,7 +195,7 @@ void Renderer::updateText(const string& text, Vector<float, 2> tl, Vector<float,
 
     Vector<float, 2> pos_orig = { 2, 60 };
     Vector<float, 2> pos = pos_orig;
-    for (uint k = 0; k < text.size(); ++k)
+    for (unsigned int k = 0; k < text.size(); ++k)
     {
         if (text[k] == '\n')
         {
@@ -454,7 +454,7 @@ tryagain:
 
 void Renderer::createSwapData()
 {
-    for (uint k = 0; k < window.images.size(); ++k)
+    for (unsigned int k = 0; k < window.images.size(); ++k)
     {
         swaps.push_back(make_unique<swapData>(*this, get_vulkan_image(window.images[k])));
     }
@@ -1008,7 +1008,7 @@ void Renderer::createGraphicsPipeline2D()
         VkDescriptorSetLayoutCreateInfo info = { .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
                                                  .pNext = nullptr,
                                                  .flags = 0,
-                                                 .bindingCount = (uint)bindings.size(),
+                                                 .bindingCount = (unsigned int)bindings.size(),
                                                  .pBindings = bindings.data() };
 
         call_vulkan(window.vkCreateDescriptorSetLayout(window.vkDevice, &info, nullptr, &overlay.descriptorSetLayout));
