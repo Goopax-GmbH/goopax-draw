@@ -5,9 +5,10 @@
 #include "shaders/particles.frag.spv.cpp"
 #include "shaders/particles.vert.spv.cpp"
 #include "shaders/particles_pot.vert.spv.cpp"
-#include <boost/iostreams/device/mapped_file.hpp>
 
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <filesystem>
+#include <fstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <goopax_draw/particle/renderer_vulkan.hpp>
@@ -669,10 +670,9 @@ Renderer::Renderer(sdl_window_vulkan& window0, float cubeSize, array<unsigned in
         // Load font for text (assume arial.ttf is in your assets)
 
         {
-            boost::iostreams::mapped_file_source ttf_buffer(font_filename);
-            // unsigned char ttf_buffer[1<<20];
-            // fread(ttf_buffer, 1, 1<<20, fopen("/usr/share/fonts/Myriad Pro/Myriad Pro Regular/Myriad Pro
-            // Regular.ttf", "rb")); unsigned char temp_bitmap[512*512];
+            vector<char> ttf_buffer(std::filesystem::file_size(font_filename));
+            ifstream file(font_filename, std::ios::binary);
+            file.read(ttf_buffer.data(), ttf_buffer.size());
 
             overlay.textdata.assign(window.device, 256);
 

@@ -16,7 +16,7 @@ target_include_directories(goopax_typedefs SYSTEM INTERFACE "${CMAKE_CURRENT_SOU
 
 
 
-if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen AND TARGET Boost::iostreams)
+if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
 
   find_path(Vulkan_INCLUDE_DIRS "vulkan/vulkan.h" HINTS "${CMAKE_BINARY_DIR}/ext/build_sdl3-prefix/src/build_sdl3/src/video/khronos")
 
@@ -98,6 +98,6 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen AND TARGET Boost::iostreams)
       target_link_libraries(goopax_draw PUBLIC OpenGL::GLU)
     endif()
   endif()
-  target_link_libraries(goopax_draw PUBLIC goopax::goopax Eigen3::Eigen goopax_typedefs Boost::iostreams)
+  target_link_libraries(goopax_draw PUBLIC goopax::goopax Eigen3::Eigen goopax_typedefs)
 
 endif()
