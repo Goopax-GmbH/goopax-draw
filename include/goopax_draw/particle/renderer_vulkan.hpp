@@ -2,6 +2,7 @@
 
 #include "../vulkan/semaphore.hpp"
 #include <goopax_draw/window_vulkan.h>
+#include <span>
 
 namespace goopax_draw::vulkan
 {
