@@ -4,7 +4,7 @@ option(GOOPAX_DEBUG "GOOPAX_DEBUG" OFF)
 find_package(SDL3 PATHS "${CMAKE_BINARY_DIR}/ext/sdl3")
 find_package(Eigen3 3.3 NO_MODULE PATHS "${CMAKE_BINARY_DIR}/ext/eigen")
 find_package(OpenGL)
-find_package(glm)
+find_package(glm HINTS "${CMAKE_BINARY_DIR}/ext/glm")
 
 add_library(goopax_typedefs INTERFACE)
 if (GOOPAX_DEBUG)
