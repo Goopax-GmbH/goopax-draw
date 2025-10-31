@@ -7,7 +7,7 @@
 using namespace std;
 using namespace goopax;
 
-inline void call_vulkan(VkResult result)
+void call_vulkan(VkResult result)
 {
     if (result != VK_SUCCESS) [[unlikely]]
     {
@@ -68,7 +68,7 @@ tryagain:
             .newLayout = VK_IMAGE_LAYOUT_GENERAL,
             .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .image = static_cast<VkImage>(images[imageIndex].get_handler()),
+            .image = get_vulkan_image(images[imageIndex]),
             .subresourceRange = { .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
                                   .baseMipLevel = 0,
                                   .levelCount = 1,
@@ -100,7 +100,7 @@ tryagain:
             .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
             .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
             .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
-            .image = static_cast<VkImage>(images[imageIndex].get_handler()),
+            .image = get_vulkan_image(images[imageIndex]),
             .subresourceRange = { .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
                                   .baseMipLevel = 0,
                                   .levelCount = 1,
@@ -168,22 +168,24 @@ tryagain:
     call_vulkan(vkResetFences(vkDevice, 1, &fence));
 }
 
+constexpr auto image_usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+
 void sdl_window_vulkan::create_swapchain()
 {
-    VkSurfaceCapabilitiesKHR capabilities;
-    call_vulkan(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(get_vulkan_physical_device(device), surface, &capabilities));
+    call_vulkan(
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(get_vulkan_physical_device(device), surface, &surfaceCapabilities));
 
     {
         VkSwapchainCreateInfoKHR info = { .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
                                           .pNext = nullptr,
                                           .flags = 0,
                                           .surface = this->surface,
-                                          .minImageCount = max(2u, capabilities.minImageCount),
+                                          .minImageCount = max(2u, surfaceCapabilities.minImageCount),
                                           .imageFormat = format.format,
                                           .imageColorSpace = format.colorSpace,
-                                          .imageExtent = capabilities.currentExtent,
+                                          .imageExtent = surfaceCapabilities.currentExtent,
                                           .imageArrayLayers = 1,
-                                          .imageUsage = VK_IMAGE_USAGE_STORAGE_BIT,
+                                          .imageUsage = image_usage, // VK_IMAGE_USAGE_STORAGE_BIT,
                                           .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
                                           .queueFamilyIndexCount = 0,
                                           .pQueueFamilyIndices = nullptr,
@@ -209,7 +211,7 @@ void sdl_window_vulkan::create_swapchain()
             this->images.push_back(image_buffer<2, Eigen::Vector<uint8_t, 4>, true>::create_from_vulkan(
                 device,
                 images[k],
-                { capabilities.currentExtent.width, capabilities.currentExtent.height },
+                { surfaceCapabilities.currentExtent.width, surfaceCapabilities.currentExtent.height },
                 format.format));
 
             {
@@ -298,6 +300,53 @@ sdl_window_vulkan::sdl_window_vulkan(const char* name, Eigen::Vector<Tuint, 2> s
     setfunc(vkResetFences);
     setfunc(vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
     setfunc(vkGetPhysicalDeviceImageFormatProperties);
+    setfunc(vkCreateShaderModule);
+    setfunc(vkDestroySemaphore);
+    setfunc(vkCreateImageView);
+    setfunc(vkDestroyPipeline);
+    setfunc(vkDestroyPipelineLayout);
+    setfunc(vkDestroyRenderPass);
+    setfunc(vkDestroyImageView);
+    setfunc(vkFreeMemory);
+    setfunc(vkDestroyImage);
+    setfunc(vkDestroyFramebuffer);
+    setfunc(vkCreateImage);
+    setfunc(vkGetPhysicalDeviceMemoryProperties);
+    setfunc(vkGetPhysicalDeviceFormatProperties);
+    setfunc(vkCreateRenderPass);
+    setfunc(vkCreatePipelineLayout);
+    setfunc(vkCreateFramebuffer);
+    setfunc(vkCreateSemaphore);
+    setfunc(vkGetImageMemoryRequirements);
+    setfunc(vkCreateGraphicsPipelines);
+    setfunc(vkAllocateMemory);
+    setfunc(vkDestroyShaderModule);
+    setfunc(vkBindImageMemory);
+    setfunc(vkResetCommandBuffer);
+    setfunc(vkCmdBeginRenderPass);
+    setfunc(vkCmdBindPipeline);
+    setfunc(vkCmdSetViewport);
+    setfunc(vkCmdSetScissor);
+    setfunc(vkCmdBindVertexBuffers);
+    setfunc(vkCmdPushConstants);
+    setfunc(vkCmdDraw);
+    setfunc(vkCmdEndRenderPass);
+    setfunc(vkGetDeviceQueue);
+    setfunc(vkDeviceWaitIdle);
+    setfunc(vkCmdBindIndexBuffer);
+    setfunc(vkCmdDrawIndexed);
+    setfunc(vkCreateSampler);
+    setfunc(vkCmdBindDescriptorSets);
+    setfunc(vkCreateDescriptorPool);
+    setfunc(vkCreateDescriptorSetLayout);
+    setfunc(vkAllocateDescriptorSets);
+    setfunc(vkUpdateDescriptorSets);
+    setfunc(vkGetBufferDeviceAddress);
+#ifdef _WIN32
+    setfunc(vkGetMemoryWin32HandleKHR);
+#else
+    setfunc(vkGetMemoryFdKHR);
+#endif
 
 #undef setfunc
 
@@ -352,7 +401,7 @@ sdl_window_vulkan::sdl_window_vulkan(const char* name, Eigen::Vector<Tuint, 2> s
                                                                            format.format,
                                                                            VK_IMAGE_TYPE_2D,
                                                                            VK_IMAGE_TILING_OPTIMAL,
-                                                                           VK_IMAGE_USAGE_STORAGE_BIT,
+                                                                           image_usage, // VK_IMAGE_USAGE_STORAGE_BIT,
                                                                            0,
                                                                            &imageFormatProperties);
 

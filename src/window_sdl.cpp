@@ -123,7 +123,7 @@ sdl_window::create(const char* name, Eigen::Vector<Tuint, 2> size, uint32_t flag
 #if WITH_OPENGL
     try
     {
-        cout << "Trying opengl." << endl;
+        // cout << "Trying opengl." << endl;
         return std::make_unique<sdl_window_gl>(name, size, flags, env);
     }
     catch (std::exception& e)
@@ -181,8 +181,8 @@ sdl_window::sdl_window(const char* name, Vector<Tuint, 2> size, uint32_t flags, 
             throw std::runtime_error(std::string("Cannot create renderer: ") + SDL_GetError());
         }
 
-        cout << "renderer properties:" << endl;
-        print_properties(SDL_GetRendererProperties(renderer));
+        // cout << "renderer properties:" << endl;
+        // print_properties(SDL_GetRendererProperties(renderer));
     }
 }
 
