@@ -20,6 +20,8 @@ namespace goopax_draw::vulkan
 {
 
 const std::string font_filename = "/usr/share/fonts/Myriad Pro/Myriad Pro Regular/Myriad Pro Regular.ttf";
+const float font_size = 60;
+
 // const std::string font_filename = "/usr/share/fonts/liberation-fonts/LiberationSans-Regular.ttf";
 
 using namespace goopax;
@@ -187,20 +189,20 @@ constexpr backend_create_params vulkan_index_flags = { .vulkan = { .usage_bits =
                                                                                  | VK_BUFFER_USAGE_TRANSFER_SRC_BIT
                                                                                  | VK_BUFFER_USAGE_TRANSFER_DST_BIT } };
 
-void Renderer::updateText(const string& text, Vector<float, 2> tl, Vector<float, 2> size, float lineheight)
+void Renderer::updateText(const string& text, Vector<float, 2> tl)
 {
-    overlay.image.fill({ 100, 100, 0, 128 });
+    overlay.image.fill((overlay.bgColor * 255).cast<uint8_t>());
 
     auto* data = new vector<Chardata<int>>(text.size());
 
-    Vector<float, 2> pos_orig = { 2, 60 };
+    Vector<float, 2> pos_orig = { 2, font_size };
     Vector<float, 2> pos = pos_orig;
     for (unsigned int k = 0; k < text.size(); ++k)
     {
         if (text[k] == '\n')
         {
             pos[0] = pos_orig[0];
-            pos[1] += lineheight;
+            pos[1] += font_size;
             continue;
         }
 
@@ -212,14 +214,15 @@ void Renderer::updateText(const string& text, Vector<float, 2> tl, Vector<float,
                        .dest_offset = pos + Vector<float, 2>{ c.xoff, c.yoff } };
         pos[0] += c.xadvance;
     }
-    overlay.textdata.copy_from_host_async(data->data()).set_callback([data]() { delete data; });
+    overlay.textdata.copy_from_host_async(data->data(), 0, text.size()).set_callback([data]() { delete data; });
     overlay.write_text(text.size());
 
+    Vector<float, 2> size = { overlay.image.width(), overlay.image.height() };
     overlay.vertexBuffer =
         vector<Vector<float, 2>>{ tl, { tl[0] + size[0], tl[1] }, tl + size, { tl[0], tl[1] + size[1] } };
 }
 
-void Renderer::render(const buffer<Vector<float, 3>>& x, float distance, float theta, Vector<float, 2> xypos)
+void Renderer::render(const buffer<Vector<float, 3>>& x, float distance, Vector<float, 2> theta, Vector<float, 2> xypos)
 {
     if (potentialDummy.size() != x.size())
     {
@@ -233,7 +236,7 @@ void Renderer::render(const buffer<Vector<float, 3>>& x, float distance, float t
 void Renderer::render(const buffer<Vector<float, 3>>& x,
                       const buffer<float>& potential,
                       float distance,
-                      float theta,
+                      Vector<float, 2> theta,
                       Vector<float, 2> xypos)
 {
     // static constexpr uint64_t timeout = 60000000000ul;
@@ -249,7 +252,9 @@ tryagain:
     float far_clip = 100.0f;         // Far clipping plane (larger than D + scene depth)
 
     // Compute camera position after rotation around y-axis
-    glm::vec3 camera_pos = glm::vec3(distance * sin(theta) + xypos[0], xypos[1], distance * cos(theta));
+    glm::vec3 camera_pos = glm::vec3(-distance * sin(theta[0]) * cos(theta[1]) + xypos[0],
+                                     distance * sin(theta[1]) + xypos[1],
+                                     distance * cos(theta[0]) * cos(theta[1]));
 
     // Create view matrix: camera looking at origin with up as (0,1,0)
     glm::mat4 view = glm::lookAt(camera_pos, glm::vec3(xypos[0], xypos[1], 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -676,10 +681,9 @@ Renderer::Renderer(sdl_window_vulkan& window0, float cubeSize, array<unsigned in
             overlay.textdata.assign(window.device, 256);
 
             image_buffer_map map(overlay.characters);
-            float fontsize = 60;
             stbtt_BakeFontBitmap(reinterpret_cast<const uint8_t*>(ttf_buffer.data()),
                                  0,
-                                 fontsize,
+                                 font_size,
                                  (unsigned char*)&map[{ 0, 0 }],
                                  512,
                                  512,
@@ -716,7 +720,10 @@ Renderer::Renderer(sdl_window_vulkan& window0, float cubeSize, array<unsigned in
                         Vector<gpu_uint, 2> rdest_u = rdest.cast<gpu_uint>();
                         rsrc += rdest - rdest_u.cast<gpu_float>();
                         gpu_float c = image_resource(overlay.characters).read(rsrc, filter_linear | address_none)[0];
-                        image_resource(overlay.image).write(rdest_u, { 1, 1, 1, c });
+                        image_resource(overlay.image)
+                            .write(rdest_u,
+                                   overlay.bgColor.cast<gpu_float>()
+                                       + c * (overlay.textColor - overlay.bgColor).cast<gpu_float>());
                     });
                 });
             });

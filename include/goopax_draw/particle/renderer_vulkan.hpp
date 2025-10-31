@@ -50,6 +50,9 @@ public:
 
     struct
     {
+        const Eigen::Vector<float, 4> bgColor = { 0, 0, 0, 0.5f };
+        const Eigen::Vector<float, 4> textColor = { 1, 1, 1, 1 };
+
         VkPipelineLayout pipelineLayout;
         VkPipeline graphicsPipeline;                            // For 2D quads
         goopax::buffer<Eigen::Vector<float, 2>> vertexBuffer;   // Positions (quad)
@@ -77,8 +80,7 @@ public:
 
     goopax::buffer<float> potentialDummy;
 
-    void
-    updateText(const std::string& text, Eigen::Vector<float, 2> tl, Eigen::Vector<float, 2> size, float lineheight);
+    void updateText(const std::string& text, Eigen::Vector<float, 2> tl);
 
     // New for wireframe cube
     // New for overlay
@@ -87,13 +89,13 @@ public:
 
     void render(const goopax::buffer<Eigen::Vector<float, 3>>& x,
                 float distance = 2,
-                float theta = 0,
+                Eigen::Vector<float, 2> theta = { 0, 0 },
                 Eigen::Vector<float, 2> xypos = { 0, 0 });
 
     void render(const goopax::buffer<Eigen::Vector<float, 3>>& x,
                 const goopax::buffer<float>& potential,
                 float distance = 2,
-                float theta = 0,
+                Eigen::Vector<float, 2> theta = { 0, 0 },
                 Eigen::Vector<float, 2> xypos = { 0, 0 });
 
     // New helper functions
