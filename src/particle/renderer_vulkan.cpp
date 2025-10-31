@@ -179,13 +179,13 @@ void Renderer::createImage(uint32_t width,
 }
 
 constexpr backend_create_params vulkan_vertex_flags = {
-    .vulkan = { .usage_bits = VK_BUFFER_USAGE_2_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT
-                              | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_KHR }
+    .vulkan = { .usage_bits = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+                              | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT_KHR }
 };
 
 constexpr backend_create_params vulkan_index_flags = {
-    .vulkan = { .usage_bits = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_2_TRANSFER_SRC_BIT
-                              | VK_BUFFER_USAGE_2_TRANSFER_DST_BIT }
+    .vulkan = { .usage_bits = VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+                              | VK_BUFFER_USAGE_TRANSFER_DST_BIT }
 };
 
 void Renderer::updateText(const string& text, Vector<float, 2> tl, Vector<float, 2> size, float lineheight)
@@ -1104,7 +1104,8 @@ void Renderer::createOverlayResources(array<unsigned int, 2> overlaySize)
     overlay.image.assign(window.device,
                          overlaySize,
                          BUFFER_READ_WRITE,
-                         backend_create_params{ .vulkan = { .image_format = window.format.format } });
+                         //VkFormat is int
+                         backend_create_params{ .vulkan = { .image_format = (uint32_t)window.format.format } });
     // Create quad: positions and UVs for a screen-space quad (e.g., bottom-left, size 200x50)
     overlay.vertexBuffer.assign(window.device,
                                 vector<Vector<float, 2>>{ { 0, 0 },
