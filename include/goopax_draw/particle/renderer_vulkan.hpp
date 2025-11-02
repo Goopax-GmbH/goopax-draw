@@ -1,25 +1,9 @@
-#include "../../../ext/stb_truetype.h" // For text rendering
-
 #include "../vulkan/semaphore.hpp"
+#include "pipeline/particle.hpp"
+#include "pipeline/text.hpp"
+#include "pipeline/wireframe.hpp"
 #include <goopax_draw/window_vulkan.h>
 #include <span>
-
-namespace goopax_draw::vulkan
-{
-template<typename T>
-struct Chardata
-{
-    using uint16_type = typename goopax::change_gpu_mode<uint16_t, T>::type;
-    using float_type = typename goopax::change_gpu_mode<float, T>::type;
-    uint16_type x0;
-    uint16_type y0;
-    uint16_type dx;
-    uint16_type dy;
-    Eigen::Vector<float_type, 2> dest_offset;
-};
-}
-
-GOOPAX_PREPARE_STRUCT(goopax_draw::vulkan::Chardata);
 
 namespace goopax_draw::vulkan
 {
@@ -33,41 +17,13 @@ public:
 
     VkFormat depthFormat;
     VkRenderPass renderPass;
-    struct
-    {
-        VkPipelineLayout pipelineLayout;
-        VkPipeline graphicsPipeline;
-    } particles;
+
+    std::optional<PipelineParticles> pipelineParticles;
+    std::optional<PipelineWireframe> pipelineWireframe;
+    std::optional<PipelineText> pipelineText;
 
     struct
     {
-        VkPipelineLayout pipelineLayout;
-        VkPipeline graphicsPipeline; // Separate pipeline for lines
-        goopax::buffer<Eigen::Vector<float, 3>> vertexBuffer;
-        goopax::buffer<uint32_t> indexBuffer;
-        float cubeSize;
-    } cube;
-
-    struct
-    {
-        VkPipelineLayout pipelineLayout;
-        VkPipeline graphicsPipeline;                            // For 2D quads
-        goopax::buffer<Eigen::Vector<float, 2>> vertexBuffer;   // Positions (quad)
-        goopax::buffer<Eigen::Vector<float, 2>> texCoordBuffer; // UVs
-        goopax::buffer<uint32_t> indexBuffer;
-        stbtt_bakedchar cdata[96]; // For font baking (ASCII 32-127)
-        goopax::image_buffer<2, Eigen::Vector<uint8_t, 4>, true> image;
-        goopax::image_buffer<2, Eigen::Vector<uint8_t, 1>, true> characters;
-        // buffer<stbtt_bakedchar<int>> cdata;
-        goopax::buffer<Chardata<int>> textdata;
-
-        VkImageView textureView;
-        VkSampler sampler;
-        goopax::kernel<void(unsigned int N)> write_text;
-
-        VkDescriptorPool descriptorPool = nullptr;
-        VkDescriptorSetLayout descriptorSetLayout = nullptr;
-        VkDescriptorSet descriptorSet = nullptr;
     } overlay;
 
     Semaphore imageAvailableSemaphore;
@@ -77,34 +33,16 @@ public:
 
     goopax::buffer<float> potentialDummy;
 
-    void
-    updateText(const std::string& text, Eigen::Vector<float, 2> tl, Eigen::Vector<float, 2> size, float lineheight);
-
-    // New for wireframe cube
-    // New for overlay
-    // VkImage overlayTexture;
-    // VkDeviceMemory overlayTextureMemory;
-
     void render(const goopax::buffer<Eigen::Vector<float, 3>>& x,
                 float distance = 2,
-                float theta = 0,
+                Eigen::Vector<float, 2> theta = { 0, 0 },
                 Eigen::Vector<float, 2> xypos = { 0, 0 });
 
     void render(const goopax::buffer<Eigen::Vector<float, 3>>& x,
                 const goopax::buffer<float>& potential,
                 float distance = 2,
-                float theta = 0,
+                Eigen::Vector<float, 2> theta = { 0, 0 },
                 Eigen::Vector<float, 2> xypos = { 0, 0 });
-
-    // New helper functions
-    void createCubeBuffers();
-    void createOverlayResources(std::array<unsigned int, 2> overlaySize);
-    // void updateOverlayTexture(const std::string& text, const std::string& imagePath);
-    void createGraphicsPipelineLines();
-    void createGraphicsPipeline2D();
-    void destroyAdditionalResources();
-
-    VkShaderModule createShaderModule(std::span<unsigned char> prog);
 
     Renderer(sdl_window_vulkan& window0, float cubeSize, std::array<unsigned int, 2> overlaySize);
     ~Renderer();

@@ -61,7 +61,7 @@ if (TARGET SDL3::SDL3 AND TARGET Eigen3::Eigen)
     set(FILES ${FILES} src/window_gl.cpp)
   endif()
   if (GOOPAX_DRAW_WITH_VULKAN)
-    set(FILES ${FILES} src/window_vulkan.cpp src/particle/renderer_vulkan.cpp src/vulkan/semaphore.cpp)
+    set(FILES ${FILES} src/window_vulkan.cpp src/particle/renderer_vulkan.cpp src/particle/pipeline/particle.cpp src/particle/pipeline/pipeline.cpp src/particle/pipeline/wireframe.cpp src/particle/pipeline/text.cpp src/vulkan/semaphore.cpp)
   endif()
 
   add_library(goopax_draw ${FILES})

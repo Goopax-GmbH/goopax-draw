@@ -7,6 +7,7 @@
 #include <vulkan/vk_platform.h>
 #include <vulkan/vulkan.h>
 #include <windows.h>
+
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan_win32.h>
 #else
@@ -89,6 +90,11 @@ public:
     setfunc(vkGetMemoryFdKHR);
 #endif
 
+    setfunc(vkFreeDescriptorSets);
+    setfunc(vkDestroyDescriptorSetLayout);
+    setfunc(vkDestroyDescriptorPool);
+    setfunc(vkDestroySampler);
+
 #undef setfunc
 
     VkInstance instance = nullptr;
@@ -106,6 +112,7 @@ public:
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
     std::vector<goopax::image_buffer<2, Eigen::Vector<uint8_t, 4>, true>> images;
+    VkShaderModule createShaderModule(std::span<unsigned char> prog);
 
     void draw_goopax(
         std::function<void(goopax::image_buffer<2, Eigen::Vector<Tuint8_t, 4>, true>& image)> func) final override;
