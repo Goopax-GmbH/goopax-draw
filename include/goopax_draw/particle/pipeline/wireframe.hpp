@@ -12,7 +12,7 @@ class PipelineWireframe : public Pipeline
     float cubeSize;
 
 public:
-    void draw(VkExtent2D extent, VkCommandBuffer cb, glm::mat4 matrix);
+    void draw(VkCommandBuffer cb, glm::mat4 matrix);
     PipelineWireframe(sdl_window_vulkan& window, VkRenderPass renderPass, float cubeSize0);
 };
 
