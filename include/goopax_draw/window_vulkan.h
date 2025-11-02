@@ -13,6 +13,7 @@
 #else
 #include <vulkan/vulkan.h>
 #endif
+#include <span>
 
 void call_vulkan(VkResult result);
 
