@@ -235,6 +235,19 @@ void sdl_window_vulkan::create_swapchain()
     }
 }
 
+VkShaderModule sdl_window_vulkan::createShaderModule(span<unsigned char> prog)
+{
+    VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+                                            .pNext = nullptr,
+                                            .flags = 0,
+                                            .codeSize = prog.size(),
+                                            .pCode = reinterpret_cast<const uint32_t*>(prog.data()) };
+
+    VkShaderModule module;
+    call_vulkan(vkCreateShaderModule(vkDevice, &createInfo, nullptr, &module));
+    return module;
+}
+
 void sdl_window_vulkan::destroy_swapchain()
 {
     for (auto& cb : commandBuffers)
@@ -347,6 +360,10 @@ sdl_window_vulkan::sdl_window_vulkan(const char* name, Eigen::Vector<Tuint, 2> s
 #else
     setfunc(vkGetMemoryFdKHR);
 #endif
+    setfunc(vkFreeDescriptorSets);
+    setfunc(vkDestroyDescriptorSetLayout);
+    setfunc(vkDestroyDescriptorPool);
+    setfunc(vkDestroySampler);
 
 #undef setfunc
 
