@@ -11,7 +11,7 @@ using Eigen::Vector;
 
 namespace goopax_draw::vulkan
 {
-void PipelineWireframe::draw(VkExtent2D extent, VkCommandBuffer cb, glm::mat4 matrix)
+void PipelineWireframe::draw(VkCommandBuffer cb, glm::mat4 matrix)
 {
     window.vkCmdBindPipeline(cb, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
     VkBuffer vb[] = { get_vulkan_buffer(vertexBuffer) };

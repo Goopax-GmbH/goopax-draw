@@ -263,7 +263,7 @@ tryagain:
     }
     if (pipelineWireframe)
     {
-        pipelineWireframe->draw(extent, s.commandBuffer, matrix);
+        pipelineWireframe->draw(s.commandBuffer, matrix);
     }
     if (pipelineText)
     {
