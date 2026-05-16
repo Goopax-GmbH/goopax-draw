@@ -49,4 +49,3 @@ using namespace goopax::release::types;
 template<typename T>
 using Tdebugtype = T;
 #endif
-
