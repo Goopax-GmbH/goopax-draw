@@ -3,7 +3,6 @@
 #include <goopax_draw/particle/pipeline/particle.hpp>
 
 #include "../shaders/particles.frag.spv.cpp"
-#include "../shaders/particles.vert.spv.cpp"
 #include "../shaders/particles_pot.vert.spv.cpp"
 
 using namespace goopax;
@@ -47,8 +46,15 @@ void PipelineParticles::draw(VkExtent2D extent,
 PipelineParticles::PipelineParticles(sdl_window_vulkan& window, VkRenderPass renderPass)
     : Pipeline(window)
 {
+#if __cpp_lib_span >= 202002
     VkShaderModule vertShaderModule = window.createShaderModule(particles_pot_vert_spv);
     VkShaderModule fragShaderModule = window.createShaderModule(particles_frag_spv);
+#else
+    VkShaderModule vertShaderModule =
+        window.createShaderModule(vector(std::begin(particles_pot_vert_spv), std::end(particles_pot_vert_spv)));
+    VkShaderModule fragShaderModule =
+        window.createShaderModule(vector(std::begin(particles_frag_spv), std::end(particles_frag_spv)));
+#endif
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

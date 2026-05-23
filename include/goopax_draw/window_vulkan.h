@@ -13,7 +13,9 @@
 #else
 #include <vulkan/vulkan.h>
 #endif
+#if __cpp_lib_span >= 202002
 #include <span>
+#endif
 
 void call_vulkan(VkResult result);
 
@@ -113,7 +115,11 @@ public:
     VkSurfaceCapabilitiesKHR surfaceCapabilities;
 
     std::vector<goopax::image_buffer<2, Eigen::Vector<uint8_t, 4>, true>> images;
+#if __cpp_lib_span >= 202002
     VkShaderModule createShaderModule(std::span<unsigned char> prog);
+#else
+    VkShaderModule createShaderModule(std::vector<unsigned char> prog);
+#endif
 
     void draw_goopax(
         std::function<void(goopax::image_buffer<2, Eigen::Vector<Tuint8_t, 4>, true>& image)> func) final override;

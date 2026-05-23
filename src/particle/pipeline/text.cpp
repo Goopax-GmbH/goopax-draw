@@ -91,8 +91,15 @@ PipelineText::PipelineText(sdl_window_vulkan& window,
     : Pipeline(window)
     , fontSize(fontSize0)
 {
+#if __cpp_lib_span >= 202002
     VkShaderModule vertShaderModule = window.createShaderModule(overlay_vert_spv);
     VkShaderModule fragShaderModule = window.createShaderModule(overlay_frag_spv);
+#else
+    VkShaderModule vertShaderModule =
+        window.createShaderModule(vector(std::begin(overlay_vert_spv), std::end(overlay_vert_spv)));
+    VkShaderModule fragShaderModule =
+        window.createShaderModule(vector(std::begin(overlay_frag_spv), std::end(overlay_frag_spv)));
+#endif
 
     VkPipelineShaderStageCreateInfo vertShaderStageInfo = {};
     vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;

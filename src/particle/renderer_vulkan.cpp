@@ -1,9 +1,6 @@
 #include <goopax_extra/output.hpp>
 #include <goopax_extra/param.hpp>
 
-#include "shaders/particles.frag.spv.cpp"
-#include "shaders/particles.vert.spv.cpp"
-
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <filesystem>
 #include <fstream>

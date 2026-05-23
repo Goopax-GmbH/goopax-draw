@@ -235,7 +235,11 @@ void sdl_window_vulkan::create_swapchain()
     }
 }
 
+#if __cpp_lib_span >= 202002
 VkShaderModule sdl_window_vulkan::createShaderModule(span<unsigned char> prog)
+#else
+VkShaderModule sdl_window_vulkan::createShaderModule(vector<unsigned char> prog)
+#endif
 {
     VkShaderModuleCreateInfo createInfo = { .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
                                             .pNext = nullptr,

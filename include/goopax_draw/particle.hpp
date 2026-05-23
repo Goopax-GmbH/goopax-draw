@@ -4,7 +4,7 @@
 #include "particle/renderer_metal.hpp"
 #endif
 
-#if WITH_OPENGL
+#if WITH_OPENGL && __has_include(<glatter/glatter.h>)
 #include "particle/renderer_gl.hpp"
 #endif
 
