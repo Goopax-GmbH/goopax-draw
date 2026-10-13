@@ -29,6 +29,7 @@ tryagain:
     {
         cout << "vkAcquireNextImageKHR returned VK_OUT_OF_DATE_KHR" << endl
              << "Probably the window has been resized." << endl;
+
         destroy_swapchain();
         create_swapchain();
         cout << "Trying again." << endl;
@@ -254,6 +255,8 @@ VkShaderModule sdl_window_vulkan::createShaderModule(vector<unsigned char> prog)
 
 void sdl_window_vulkan::destroy_swapchain()
 {
+    device.enqueue_fence().wait();
+
     for (auto& cb : commandBuffers)
     {
         call_vulkan(vkWaitForFences(vkDevice, 1, &cb.second, false, timeout));
