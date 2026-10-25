@@ -26,8 +26,7 @@
 
 struct gl_object
 {
-    unsigned int gl_id;
-    bool alive = true;
+    unsigned int gl_id = 0;
 
     inline gl_object() = default;
     gl_object(const gl_object&) = delete;
@@ -35,12 +34,12 @@ struct gl_object
     inline gl_object(gl_object&& b)
         : gl_id(b.gl_id)
     {
-        b.alive = false;
+        b.gl_id = 0;
     }
     inline gl_object& operator=(gl_object&& b)
     {
         gl_id = b.gl_id;
-        b.alive = false;
+        b.gl_id = 0;
         return *this;
     }
 };
@@ -59,7 +58,7 @@ struct gl_buffer : public gl_object
 
     ~gl_buffer()
     {
-        if (alive)
+        if (gl_id)
             glDeleteBuffers(1, &gl_id);
     }
 
@@ -77,6 +76,7 @@ struct gl_buffer : public gl_object
     gl_buffer(gl_buffer&&) = default;
     gl_buffer& operator=(gl_buffer&&) = default;
 #endif
+    gl_buffer() = default;
 };
 
 template<class T>
@@ -92,6 +92,7 @@ struct opengl_buffer
     {
     }
 
+    opengl_buffer() = default;
     opengl_buffer(opengl_buffer&&) = default;
     opengl_buffer& operator=(opengl_buffer&&) = default;
 };
