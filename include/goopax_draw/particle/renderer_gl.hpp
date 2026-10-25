@@ -5,10 +5,23 @@
 #include <GL/glx.h>
 #endif
 #ifdef __APPLE__
+#if __has_include(<OpenGL/gl.h>)
 #include <OpenGL/gl.h>
+#define GOOPAX_DRAW_FOUND_OPENGL_HEADERS 1
 #else
-#include <glatter/glatter.h>
+#define GOOPAX_DRAW_FOUND_OPENGL_HEADERS 0
 #endif
+#else
+#if __has_include(<glatter/glatter.h>)
+#include <glatter/glatter.h>
+#define GOOPAX_DRAW_FOUND_OPENGL_HEADERS 1
+#else
+#define GOOPAX_DRAW_FOUND_OPENGL_HEADERS 0
+#endif
+#endif
+
+#if GOOPAX_DRAW_FOUND_OPENGL_HEADERS
+
 #include <goopax>
 
 struct gl_object
@@ -163,3 +176,5 @@ void render(SDL_Window* window,
         glDisableClientState(GL_COLOR_ARRAY);
     }
 }
+
+#endif
